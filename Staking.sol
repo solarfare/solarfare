@@ -29,6 +29,7 @@ contract Staking is Ownable {
     event OnWithdraw(address sender, uint256 amount);
     event OnDistribute(address sender, uint256 amount);
     event Received(address sender, uint256 amount);
+    event UpdateStartTime(uint256 timestamp);
 
     constructor(ISolarFare _token) {
         token = _token;
@@ -43,7 +44,12 @@ contract Staking is Ownable {
     }
 
     function setStartTime(uint256 _startTime) external onlyOwner {
+        require(
+            startTime == 0 || block.timestamp < startTime,
+            "Staking already active"
+        );
         startTime = _startTime;
+        emit UpdateStartTime(_startTime);
     }
 
     function dividendsOf(address staker) public view returns (uint256) {
@@ -112,7 +118,7 @@ contract Staking is Ownable {
         uint256 split = (msg.value * 10) / 100;
         uint256 amount = msg.value - split;
 
-        payable(token.owner()).transfer(split);
+        payable(owner()).transfer(split);
 
         if (amount > 0) {
             totalDistributions += amount;
@@ -135,7 +141,8 @@ contract Staking is Ownable {
                 amount += emptyStakeTokens;
                 emptyStakeTokens = 0;
             }
-            profitPerShare += ((amount * DISTRIBUTION_MULTIPLIER) / totalStaked);
+            profitPerShare += ((amount * DISTRIBUTION_MULTIPLIER) /
+                totalStaked);
         } else {
             emptyStakeTokens += amount;
         }
