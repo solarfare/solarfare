@@ -24,7 +24,6 @@ contract Solarfare is BaseERC20 {
     // 8% tax, 1% to Binance charity wallet, 4% to stake contract, 3% liquidated
     uint8 private constant swapPercentage = 8;
     uint256 private minSwapAmount;
-    bool public poolInitiated = false;
 
     // Keep track of total swapped, total sent to charity
     uint256 public totalSwappedToBnb;
@@ -40,7 +39,7 @@ contract Solarfare is BaseERC20 {
         // PancakeSwap (Testnet): 0xD99D1c33F9fC3444f8101754aBC46c52416550D1
         // Pancakeswap (Mainnet): 0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F
         IUniswapV2Router02 _uniswapV2Router =
-            IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
+            IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(
             address(this),
             _uniswapV2Router.WETH()
@@ -48,10 +47,9 @@ contract Solarfare is BaseERC20 {
 
         uniswapV2Router = _uniswapV2Router;
 
-        // Contract, owner and router should always be whitelisted
+        // Contract and owner should always be whitelisted
         _whitelist[address(this)] = true;
         _whitelist[owner()] = true;
-        _whitelist[address(uniswapV2Router)] = true;
 
         emit Transfer(address(0), _msgSender(), _totalSupply);
     }
@@ -105,8 +103,6 @@ contract Solarfare is BaseERC20 {
         view
         returns (bool)
     {
-        // Charge no fees until pool is initiated
-        if (!poolInitiated) return true;
         return _whitelist[address1] || _whitelist[address2];
     }
 
@@ -181,26 +177,28 @@ contract Solarfare is BaseERC20 {
             tokenAmount,
             0,
             0,
-            owner(),
-            block.timestamp + 360
+            address(this),
+            block.timestamp
         );
     }
 
     event Swap(uint256 tokensSwapped, uint256 ethReceived);
+    event Whitelist(address whitelisted, bool isWhitelisted);
+    event UpdateStakingAddress(address stakingAddress);
 
     /**
      * Misc. functions
      */
 
     function setStakingAddress(address newAddress) external onlyOwner {
-        stakingAddress = IStaking(newAddress);
-    }
+        require(address(stakingAddress) == address(0), "Staking address already set");
 
-    function setPoolEnabled() external onlyOwner {
-        poolInitiated = true;
+        stakingAddress = IStaking(newAddress);
+        emit UpdateStakingAddress(newAddress);
     }
 
     function updateWhitelist(address addr, bool isWhitelisted) external onlyOwner {
         _whitelist[addr] = isWhitelisted;
+        emit Whitelist(addr, isWhitelisted);
     }
 }
