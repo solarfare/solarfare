@@ -4,14 +4,10 @@ pragma solidity ^0.8.4;
 import "./IERC20.sol";
 import "./Ownable.sol";
 
-interface ISolarFare is IERC20 {
-    function owner() external view returns (address);
-}
-
 contract Staking is Ownable {
     uint256 internal constant DISTRIBUTION_MULTIPLIER = 2**64;
 
-    ISolarFare public token;
+    IERC20 public token;
 
     mapping(address => uint256) public stakeValue;
     mapping(address => uint256) public stakerPayouts;
@@ -31,7 +27,7 @@ contract Staking is Ownable {
     event Received(address sender, uint256 amount);
     event UpdateStartTime(uint256 timestamp);
 
-    constructor(ISolarFare _token) {
+    constructor(IERC20 _token) {
         token = _token;
     }
 
