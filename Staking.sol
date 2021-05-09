@@ -40,10 +40,7 @@ contract Staking is Ownable {
     }
 
     function setStartTime(uint256 _startTime) external onlyOwner {
-        require(
-            startTime == 0 || block.timestamp < startTime,
-            "Staking already active"
-        );
+        require(startTime == 0 || block.timestamp < startTime, "Staking already active");
         startTime = _startTime;
         emit UpdateStartTime(_startTime);
     }
@@ -83,15 +80,16 @@ contract Staking is Ownable {
         if (stakeValue[msg.sender] == amount) totalStakers = totalStakers -= 1;
 
         totalStaked = totalStaked -= amount;
-
         stakeValue[msg.sender] = stakeValue[msg.sender] -= amount;
-
         stakerPayouts[msg.sender] = profitPerShare * stakeValue[msg.sender];
+
+        token.approve(address(this), amount);
 
         require(
             token.transferFrom(address(this), msg.sender, amount),
             "Unstake failed due to failed transfer."
         );
+
         emit OnUnstake(msg.sender, amount);
     }
 
@@ -137,8 +135,7 @@ contract Staking is Ownable {
                 amount += emptyStakeTokens;
                 emptyStakeTokens = 0;
             }
-            profitPerShare += ((amount * DISTRIBUTION_MULTIPLIER) /
-                totalStaked);
+            profitPerShare += ((amount * DISTRIBUTION_MULTIPLIER) / totalStaked);
         } else {
             emptyStakeTokens += amount;
         }
