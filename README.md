@@ -1,5 +1,5 @@
 ## Official repo for Solarfare $SLF.
 
-Token contract: [0x4D223E0b176A546B69EC5Bb8D93A4aE22c345C5b](https://bscscan.com/address/0x4D223E0b176A546B69EC5Bb8D93A4aE22c345C5b)
+Token contract: [0x32089eafFaf278C82cda2c8d37e7b6b6faBBaAF2](https://bscscan.com/address/0x32089eafFaf278C82cda2c8d37e7b6b6faBBaAF2)
 
-Staking contract [0x968e919Fd9baeDFb4C6fb9b5487e7D7bE1670A8A](https://bscscan.com/address/0x968e919Fd9baeDFb4C6fb9b5487e7D7bE1670A8A)
+Staking contract [0x311f58e4F08821e4B930a47aadb6A369Cb438359](https://bscscan.com/address/0x311f58e4F08821e4B930a47aadb6A369Cb438359)
