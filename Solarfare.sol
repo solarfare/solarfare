@@ -37,13 +37,11 @@ contract Solarfare is BaseERC20 {
 
         // Uniswap (Kovan): 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
         // PancakeSwap (Testnet): 0xD99D1c33F9fC3444f8101754aBC46c52416550D1
-        // Pancakeswap (Mainnet): 0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F
+        // Pancakeswap v2 (Mainnet): 0x10ED43C718714eb63d5aA57B78B54704E256024E
         IUniswapV2Router02 _uniswapV2Router =
-            IUniswapV2Router02(0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F);
-        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory()).createPair(
-            address(this),
-            _uniswapV2Router.WETH()
-        );
+            IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
+            .createPair(address(this), _uniswapV2Router.WETH());
 
         uniswapV2Router = _uniswapV2Router;
 
@@ -65,7 +63,10 @@ contract Solarfare is BaseERC20 {
     ) internal override {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
-        require(_balances[sender] >= amount, "ERC20: transfer amount exceeds balance");
+        require(
+            _balances[sender] >= amount,
+            "ERC20: transfer amount exceeds balance"
+        );
 
         if (_isWhitelisted(sender, recipient)) {
             _noFeeTransfer(sender, recipient, amount);
@@ -126,7 +127,8 @@ contract Solarfare is BaseERC20 {
             uint256 stakingShare = contractTokenBalance / 2;
             uint256 charityShare = stakingShare / 4;
             uint256 liquidityShare = (75 * stakingShare) / 100;
-            uint256 swapShare = stakingShare + charityShare + (liquidityShare / 2);
+            uint256 swapShare =
+                stakingShare + charityShare + (liquidityShare / 2);
 
             swapTokensForEth(swapShare);
 
@@ -191,13 +193,19 @@ contract Solarfare is BaseERC20 {
      */
 
     function setStakingAddress(address newAddress) external onlyOwner {
-        require(address(stakingAddress) == address(0), "Staking address already set");
+        require(
+            address(stakingAddress) == address(0),
+            "Staking address already set"
+        );
 
         stakingAddress = IStaking(newAddress);
         emit UpdateStakingAddress(newAddress);
     }
 
-    function updateWhitelist(address addr, bool isWhitelisted) external onlyOwner {
+    function updateWhitelist(address addr, bool isWhitelisted)
+        external
+        onlyOwner
+    {
         _whitelist[addr] = isWhitelisted;
         emit Whitelist(addr, isWhitelisted);
     }
